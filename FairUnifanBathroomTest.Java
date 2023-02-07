@@ -1,28 +1,35 @@
-import FairUnifanBathroom;
+
 public class FairUnifanBathroomTest implements Runnable{
 
-    int count;
+    FairUnifanBathroom thisBathroom;
     
-    public FairUnifanBathroomTest(){
-        count = 0;
+    public FairUnifanBathroomTest(FairUnifanBathroom thisBathroom){
+        this.thisBathroom = thisBathroom;
     }
     
     public void run(){
-        FairUniFanBathroom.enterBathroomUT();
-        FairUniFanBathroom.enterBathroomUT();
-        FairUniFanBathroom.leaveBathroomUT();
-        FairUniFanBathroom.leaveBathroomUT();
+        thisBathroom.enterBathroomUT();
+        thisBathroom.enterBathroomUT();
+        thisBathroom.leaveBathroomUT();
+        thisBathroom.leaveBathroomUT();
+      
+      
     }
     
     public static void main(String[] args) throws InterruptedException{
         Thread[] t = new Thread[10];
+        FairUnifanBathroom bathroom = new FairUnifanBathroom();
 
         for(int i = 0; i < 10; i++){
-            t[i] = new Thread(new FairUnifanBathroomTest());
+            t[i] = new Thread(new FairUnifanBathroomTest(bathroom));
         }
         for(int i = 0; i < 10; i++){
             t[i].start();
         }
+      
+ 
+        
+      
         for(int i = 0; i < 10; i++){
             t[i].join();
         }

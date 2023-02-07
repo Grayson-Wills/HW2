@@ -11,9 +11,9 @@ public class FairUnifanBathroom {
     ReentrantLock bathroomLock = new ReentrantLock();
     final Condition hasUT = bathroomLock.newCondition();
     final Condition hasOU = bathroomLock.newCondition();
-    public synchronized void enterBathroomUT() {
+    public void enterBathroomUT() {
       try{
-       
+        bathroomLock.lock();
         while(!bathroom.isEmpty() && bathroom.get(0) == 0){
           hasOU.await();
         }
@@ -23,7 +23,8 @@ public class FairUnifanBathroom {
         }
 
         bathroom.add(1);
-        hasOU.notify();
+    
+        bathroomLock.unlock();
       }
       catch (InterruptedException e) {
         // TODO Auto-generated catch block
@@ -32,8 +33,9 @@ public class FairUnifanBathroom {
       // Called when a UT fan wants to enter bathroom	
     }
       
-    public synchronized void enterBathroomOU() {
+    public void enterBathroomOU() {
       try{
+        bathroomLock.lock();
         while(!bathroom.isEmpty() && bathroom.get(0) == 1){
           hasUT.await();
         }
@@ -41,9 +43,10 @@ public class FairUnifanBathroom {
         while(bathroom.size() == maxSize){
           hasOU.await();
         }
-      
+
         bathroom.add(0);
-        hasUT.notify();
+        bathroomLock.unlock();
+       
       }
       catch (InterruptedException e) {
           // TODO Auto-generated catch block
@@ -52,41 +55,44 @@ public class FairUnifanBathroom {
       // Called when a OU fan wants to enter bathroom
       }
       
-    public synchronized void leaveBathroomUT() {
+    public void leaveBathroomUT() {
       // Called when a UT fan wants to leave bathroom
       try{
-          
-        while(bathroom.isEmpty()){
+        bathroomLock.lock();
+        System.out.println(bathroom.size());
+        while(bathroom.isEmpty() || bathroom.get(0) == 0){
           hasUT.await();
         }
 
         bathroom.remove(0);
         if(bathroom.size() == maxSize - 1){
-          hasUT.notify();
+          hasUT.signal();
         }
         if(bathroom.size() == 0){
-          hasUT.notifyAll();
+          hasUT.signalAll();
         }
+        bathroomLock.unlock();
       }
       catch(InterruptedException e){
         e.printStackTrace();
       }
     }
   
-    public synchronized void leaveBathroomOU() {
+    public void leaveBathroomOU() {
         try{
-          
-          while(bathroom.isEmpty()){
+          bathroomLock.lock();
+          while(bathroom.isEmpty() || bathroom.get(0) == 1){
             hasOU.await();
           }
           
           bathroom.remove(0);
           if(bathroom.size() == maxSize - 1){
-            hasOU.notify();
+            hasOU.signal();
           }
           if(bathroom.size() == 0){
-            hasOU.notifyAll();
+            hasOU.signalAll();
           }
+          bathroomLock.unlock();
         }
         catch(InterruptedException e){
           e.printStackTrace();
