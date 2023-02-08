@@ -11,9 +11,7 @@ public class FairUnifanBathroomTest implements Runnable{
         thisBathroom.enterBathroomUT();
         thisBathroom.enterBathroomUT();
         thisBathroom.leaveBathroomUT();
-        thisBathroom.leaveBathroomUT();
-      
-      
+        thisBathroom.leaveBathroomUT();      
     }
     
     public static void main(String[] args) throws InterruptedException{
@@ -23,12 +21,10 @@ public class FairUnifanBathroomTest implements Runnable{
         for(int i = 0; i < 10; i++){
             t[i] = new Thread(new FairUnifanBathroomTest(bathroom));
         }
+        
         for(int i = 0; i < 10; i++){
             t[i].start();
         }
-      
- 
-        
       
         for(int i = 0; i < 10; i++){
             t[i].join();

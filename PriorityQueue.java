@@ -65,6 +65,7 @@ public class PriorityQueue {
             }
             top.myLock.lock();
             previous = top.head;
+            System.out.println(previous);
             current = previous.nextPosition;
             previous.myLock.lock();
             top.myLock.unlock();
