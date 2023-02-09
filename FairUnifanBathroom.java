@@ -9,94 +9,90 @@ public class FairUnifanBathroom {
     ArrayList<Integer> bathroom = new ArrayList<Integer>();
     int maxSize = 7;
     ReentrantLock bathroomLock = new ReentrantLock();
-    final Condition hasUT = bathroomLock.newCondition();
-    final Condition hasOU = bathroomLock.newCondition();
+    final Condition UT = bathroomLock.newCondition();
+    final Condition OU = bathroomLock.newCondition();
+    volatile int currentTicket = 0;
+    volatile int ticketNum = 0;
+
     public void enterBathroomUT() {
+      bathroomLock.lock();
       try{
-        bathroomLock.lock();
-        while(!bathroom.isEmpty() && bathroom.get(0) == 0){
-          hasOU.await();
+        int ticket = ticketNum++;
+        //System.out.println("UT " + ticket + " " + currentTicket);
+        //System.out.println(bathroom.size());
+        while(bathroom.size() == maxSize || ticket > currentTicket || (!bathroom.isEmpty() && bathroom.get(0) == 0)){
+          UT.await();
         }
-
-        while(bathroom.size() == maxSize){
-          hasUT.await();
-        }
-
+       
+        currentTicket++;
         bathroom.add(1);
-    
-        bathroomLock.unlock();
+        UT.signal();
+       
       }
       catch (InterruptedException e) {
         // TODO Auto-generated catch block
         e.printStackTrace();
       }
+      finally{
+        bathroomLock.unlock();
+      }
       // Called when a UT fan wants to enter bathroom	
     }
       
     public void enterBathroomOU() {
-      try{
-        bathroomLock.lock();
-        while(!bathroom.isEmpty() && bathroom.get(0) == 1){
-          hasUT.await();
+      bathroomLock.lock();
+      try{  
+        int ticket = ticketNum++;
+        //System.out.println("OU " + ticket + " " + currentTicket);
+        while(bathroom.size() == maxSize || ticket > currentTicket || (!bathroom.isEmpty() && bathroom.get(0) == 1)){
+          OU.await();
         }
-
-        while(bathroom.size() == maxSize){
-          hasOU.await();
-        }
-
+        
+        currentTicket++;
+        //System.out.println("number is " + currentTicket);
         bathroom.add(0);
-        bathroomLock.unlock();
-       
+        OU.signal();
+        //System.out.println(bathroom.size())
       }
       catch (InterruptedException e) {
           // TODO Auto-generated catch block
         e.printStackTrace();
+      }
+      finally{
+        bathroomLock.unlock();
       }
       // Called when a OU fan wants to enter bathroom
       }
       
     public void leaveBathroomUT() {
       // Called when a UT fan wants to leave bathroom
-      try{
+    
         bathroomLock.lock();
-        System.out.println(bathroom.size());
-        while(bathroom.isEmpty() || bathroom.get(0) == 0){
-          hasUT.await();
-        }
-
+        //System.out.println(bathroom.size());
+        
         bathroom.remove(0);
-        if(bathroom.size() == maxSize - 1){
-          hasUT.signal();
-        }
+       
         if(bathroom.size() == 0){
-          hasUT.signalAll();
+          UT.signalAll();
+          OU.signalAll();
         }
         bathroomLock.unlock();
-      }
-      catch(InterruptedException e){
-        e.printStackTrace();
-      }
+    
+   
     }
   
     public void leaveBathroomOU() {
-        try{
+        
           bathroomLock.lock();
-          while(bathroom.isEmpty() || bathroom.get(0) == 1){
-            hasOU.await();
-          }
-          
+          //System.out.println("here");
           bathroom.remove(0);
-          if(bathroom.size() == maxSize - 1){
-            hasOU.signal();
-          }
           if(bathroom.size() == 0){
-            hasOU.signalAll();
+            OU.signalAll();
+            UT.signalAll();
           }
           bathroomLock.unlock();
-        }
-        catch(InterruptedException e){
-          e.printStackTrace();
-        }
+        
+       
     }
       // Called when a OU fan wants to leave bathroom
 }

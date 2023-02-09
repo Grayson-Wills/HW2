@@ -230,7 +230,7 @@ public class PriorityQueueTest implements Runnable {
 		Thread testThread33 = new Thread(new Runnable(){
 			int tests_passed = 0;
 			public void run(){
-				System.out.println(bigqueue.getSize()+" == 15");
+				//System.out.println(bigqueue.getSize()+" == 15");
 				if(bigqueue.add("two",10)==-1){tests_passed++;}
 				if(bigqueue.getFirst().equals("ten")){tests_passed++;}
 				if(bigqueue.getFirst().equals("nine")){tests_passed++;}

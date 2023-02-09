@@ -36,7 +36,7 @@ public class PriorityQueue {
     myList head;
     
     public PriorityQueue(int maxSize) {
-        head = new myList(null);
+        head = new myList(new Position(null, 10, null));
         this.maxSize = maxSize;
         this.currentSize = 0;
         // Creates a Priority queue with maximum allowed size as capacity
@@ -65,9 +65,10 @@ public class PriorityQueue {
             }
             top.myLock.lock();
             previous = top.head;
-            System.out.println(previous);
+            //System.out.println(previous);
             current = previous.nextPosition;
             previous.myLock.lock();
+            top.Empty.signal();
             top.myLock.unlock();
             if(current != null){
                 current.myLock.lock();
@@ -95,7 +96,7 @@ public class PriorityQueue {
             if(current != null){
                 current.myLock.unlock();
             }
-            top.Empty.signal();
+            
 
         }catch (InterruptedException e) {
                 // TODO Auto-generated catch block
@@ -110,7 +111,32 @@ public class PriorityQueue {
         if(head.head == null){
             return -1;
         }
-        return -1;
+        myList top = head;
+        int answer = 0;
+        Position previous = top.head;
+        Position current = previous.nextPosition;
+        
+        previous.myLock.lock();
+        if(current != null){
+            current.myLock.lock();
+        }
+        
+        while(current != null && !current.myName.equals(name)){
+            answer++;
+            Position temp = previous;
+            previous = current;
+            current = current.nextPosition;
+            temp.myLock.unlock();
+            if(current != null){
+                current.myLock.lock();
+            }
+        }
+        previous.myLock.unlock();
+        if(current == null){
+            return -1;
+        }
+
+        return answer;
     }
 
     public String getFirst() {
@@ -131,6 +157,7 @@ public class PriorityQueue {
             previous = top.head;
             current = previous.nextPosition;
             previous.myLock.lock();
+            top.Full.signal();
             top.myLock.unlock();
             if(current != null){
                 current.myLock.lock();
@@ -139,7 +166,7 @@ public class PriorityQueue {
             previous.nextPosition = current.nextPosition;
             current = null;
             currentSize--;
-            top.Full.signal();
+            
         }
         catch (InterruptedException e) {
             // TODO Auto-generated catch block
