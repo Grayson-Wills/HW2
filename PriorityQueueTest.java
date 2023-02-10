@@ -57,7 +57,9 @@ public class PriorityQueueTest implements Runnable {
 		 */
 		int maxSize = 3;
 		final PriorityQueue queue;
+		
 		queue = new PriorityQueue(maxSize);
+		queue.add("one", 1);
 
 		Thread testThread1 = new Thread(
 			new Runnable(){
@@ -113,12 +115,16 @@ public class PriorityQueueTest implements Runnable {
 		Thread testThread20 = new Thread(new Runnable(){
 			public void run(){
 				int tests_passed = 0;
+				
 				queue.add("three",3);
+				//System.out.println("here1");
 				queue.add("eight",8);
 				queue.add("eight0",8);
 				if(queue.search("three") == 3){tests_passed++;}
 				if(queue.search("eight")==1){tests_passed++;}
-				if(queue.search("eight0")==2){tests_passed++;}
+				if(queue.search("eight0")==2){tests_passed++;}	
+				
+
 				if(queue.getFirst().equals("eight")){tests_passed++;}
 				if(queue.getFirst().equals("eight0")){tests_passed++;}
 				if(queue.getFirst().equals("three")){tests_passed++;}
@@ -151,11 +157,16 @@ public class PriorityQueueTest implements Runnable {
 					e.printStackTrace();
 				}
 				System.out.println("Thread21 retrieving two values");
+
 				if(queue.search("three") == 3){tests_passed++;}
 				if(queue.search("eight")==1){tests_passed++;}
 				if(queue.search("seven")==2){tests_passed++;}
+				//System.out.println("here3");
+				
 				if(queue.getFirst().equals("eight")){tests_passed++;}
+			
 				if(queue.getFirst().equals("seven")){tests_passed++;}
+				
 				System.out.println(tests_passed+"/5 tests passed for concurrent retrieval, search");
 				queue.add("one2",1);		
 			}
@@ -166,7 +177,7 @@ public class PriorityQueueTest implements Runnable {
 		testThread21.start();
 		
 		testThread20.join();
-		testThread20.join();
+		testThread21.join();
 		System.out.println("Test 2 Complete\n\n\n");
 
 		int bigMaxSize = 15;
