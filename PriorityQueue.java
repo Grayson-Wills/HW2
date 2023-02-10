@@ -76,8 +76,7 @@ public class PriorityQueue {
             //System.out.println(previous);
             current = previous.nextPosition;
             previous.myLock.lock();
-            top.Empty.signal();
-            top.myLock.unlock();
+           
             if(current != null){
                 current.myLock.lock();
             }
@@ -105,7 +104,8 @@ public class PriorityQueue {
                 current.myLock.unlock();
             }
             
-
+            top.Empty.signal();
+            top.myLock.unlock();
         }catch (InterruptedException e) {
                 // TODO Auto-generated catch block
                 e.printStackTrace();
@@ -175,8 +175,7 @@ public class PriorityQueue {
             previous = top.head;
             current = previous.nextPosition;
             previous.myLock.lock();
-            top.Full.signal();
-            top.myLock.unlock();
+            
            
             current.myLock.lock();
             
@@ -186,6 +185,8 @@ public class PriorityQueue {
             current.myLock.unlock();
             previous.myLock.unlock();
             current = null;
+            top.Full.signal();
+            top.myLock.unlock();
            
           
             
