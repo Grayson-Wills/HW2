@@ -1,14 +1,19 @@
 // EID 1
 // EID 2
-
 /* Use only Java monitors to accomplish the required synchronization */
 public class MonitorCyclicBarrier implements CyclicBarrier {
 
+
+
     private int parties;
+    private int waitCount;
+    private boolean barrEnable;
     // TODO Add other useful variables
 
     public MonitorCyclicBarrier(int parties) {
         this.parties = parties;
+        this.waitCount = 0;
+        this.barrEnable = true;
         // TODO Add any other initialization statements
     }
 
@@ -25,7 +30,24 @@ public class MonitorCyclicBarrier implements CyclicBarrier {
      */
     public int await() throws InterruptedException {
         // TODO Implement this function
-        return -1;
+        synchronized(this){
+            if(!barrEnable){
+                return 0;
+            }
+            else{
+                int thisInd = waitCount;
+                waitCount++;
+                if(waitCount >= parties){
+                    this.notifyAll();
+                    waitCount = 0;
+                }
+                else{
+                    this.wait();
+                }
+                return thisInd;
+            }
+        }
+        
     }
 
     /*
@@ -36,6 +58,17 @@ public class MonitorCyclicBarrier implements CyclicBarrier {
      */
     public void activate() throws InterruptedException {
         // TODO Implement this function
+        if(barrEnable){
+            return;
+        }
+        else{
+            synchronized(this){
+                barrEnable = true;
+                waitCount = 0;
+                this.notifyAll();
+            }
+            return;
+        }
     }
 
     /*
@@ -44,5 +77,11 @@ public class MonitorCyclicBarrier implements CyclicBarrier {
      */
     public void deactivate() throws InterruptedException {
         // TODO Implement this function
+        synchronized(this){
+            barrEnable = false;
+            waitCount = 0;
+            this.notifyAll();
+        }
+        return;
     }
 }
